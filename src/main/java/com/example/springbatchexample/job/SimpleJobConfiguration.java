@@ -1,5 +1,6 @@
 package com.example.springbatchexample.job;
 
+import com.example.springbatchexample.incrementer.DailyJobTimestamper;
 import com.example.springbatchexample.validator.ParameterValidator;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -25,6 +26,7 @@ public class SimpleJobConfiguration {
         return new JobBuilder("job", jobRepository)
                 .start(step(jobRepository, platformTransactionManager))
                 .validator(validator())
+                .incrementer(new DailyJobTimestamper())
                 .build();
     }
 
@@ -56,7 +58,7 @@ public class SimpleJobConfiguration {
         DefaultJobParametersValidator defaultJobParametersValidator =
                 new DefaultJobParametersValidator(
                         new String[] {"fileName"},
-                        new String[] {"name"}
+                        new String[] {"name", "currentDate"}
                 );
 
         defaultJobParametersValidator.afterPropertiesSet();
