@@ -2,7 +2,9 @@ package com.example.springbatchexample.job;
 
 import com.example.springbatchexample.incrementer.DailyJobTimestamper;
 import com.example.springbatchexample.listener.JobLoggerListener;
+import com.example.springbatchexample.tasklet.HelloWorldTasklet;
 import com.example.springbatchexample.validator.ParameterValidator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -21,8 +23,12 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Arrays;
 
+@RequiredArgsConstructor
 @Configuration
 public class SimpleJobConfiguration {
+
+    private final HelloWorldTasklet helloWorldTasklet;
+
     @Bean
     public Job job(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager) {
         return new JobBuilder("job", jobRepository)
@@ -36,21 +42,8 @@ public class SimpleJobConfiguration {
     @Bean
     public Step step(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager) {
         return new StepBuilder("step1", jobRepository)
-                .tasklet(helloWorldTasklet(null, null), platformTransactionManager)
+                .tasklet(helloWorldTasklet, platformTransactionManager)
                 .build();
-    }
-
-    @StepScope
-    @Bean
-    public Tasklet helloWorldTasklet(
-            @Value("#{jobParameters['name']}") String name,
-            @Value("#{jobParameters['fileName']}") String fileName) {
-        return (contribution, chunkContext) -> {
-            System.out.println(String.format("Hello, %s!", name));
-            System.out.println(String.format("fileName = %s!", fileName));
-
-            return RepeatStatus.FINISHED;
-        };
     }
 
     @Bean
