@@ -1,6 +1,7 @@
 package com.example.springbatchexample.job;
 
 import com.example.springbatchexample.incrementer.DailyJobTimestamper;
+import com.example.springbatchexample.listener.JobLoggerListener;
 import com.example.springbatchexample.validator.ParameterValidator;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -8,6 +9,7 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.CompositeJobParametersValidator;
 import org.springframework.batch.core.job.DefaultJobParametersValidator;
 import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.listener.JobListenerFactoryBean;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -27,6 +29,7 @@ public class SimpleJobConfiguration {
                 .start(step(jobRepository, platformTransactionManager))
                 .validator(validator())
                 .incrementer(new DailyJobTimestamper())
+                .listener(JobListenerFactoryBean.getListener(new JobLoggerListener()))
                 .build();
     }
 
