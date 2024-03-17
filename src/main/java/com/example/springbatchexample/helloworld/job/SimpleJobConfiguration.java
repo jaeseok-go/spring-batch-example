@@ -1,22 +1,18 @@
-package com.example.springbatchexample.job;
+package com.example.springbatchexample.helloworld.job;
 
-import com.example.springbatchexample.incrementer.DailyJobTimestamper;
-import com.example.springbatchexample.listener.JobLoggerListener;
-import com.example.springbatchexample.tasklet.HelloWorldTasklet;
-import com.example.springbatchexample.validator.ParameterValidator;
+import com.example.springbatchexample.helloworld.listener.JobLoggerListener;
+import com.example.springbatchexample.helloworld.validator.ParameterValidator;
+import com.example.springbatchexample.helloworld.tasklet.HelloWorldTasklet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.CompositeJobParametersValidator;
 import org.springframework.batch.core.job.DefaultJobParametersValidator;
 import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.listener.JobListenerFactoryBean;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -33,8 +29,7 @@ public class SimpleJobConfiguration {
     public Job job(JobRepository jobRepository, PlatformTransactionManager platformTransactionManager) {
         return new JobBuilder("job", jobRepository)
                 .start(step(jobRepository, platformTransactionManager))
-                .validator(validator())
-                .incrementer(new DailyJobTimestamper())
+                .incrementer(new RunIdIncrementer())
                 .listener(JobListenerFactoryBean.getListener(new JobLoggerListener()))
                 .build();
     }
@@ -48,17 +43,11 @@ public class SimpleJobConfiguration {
 
     @Bean
     public CompositeJobParametersValidator validator() {
-        CompositeJobParametersValidator validator =
-                new CompositeJobParametersValidator();
-
         DefaultJobParametersValidator defaultJobParametersValidator =
-                new DefaultJobParametersValidator(
-                        new String[] {"fileName"},
-                        new String[] {"name", "currentDate"}
-                );
-
+                new DefaultJobParametersValidator(new String[] {"fileName"}, new String[] {"name", "currentDate"});
         defaultJobParametersValidator.afterPropertiesSet();
 
+        CompositeJobParametersValidator validator = new CompositeJobParametersValidator();
         validator.setValidators(
                 Arrays.asList(new ParameterValidator(), defaultJobParametersValidator)
         );

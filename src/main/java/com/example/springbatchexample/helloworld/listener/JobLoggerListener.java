@@ -1,4 +1,4 @@
-package com.example.springbatchexample.listener;
+package com.example.springbatchexample.helloworld.listener;
 
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.annotation.AfterJob;

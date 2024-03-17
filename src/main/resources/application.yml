@@ -3,7 +3,9 @@ spring:
     driverClassName: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/spring_batch
     username: root
-    password: Jeeyu9400!@
+    password: password
   batch:
     jdbc:
       initialize-schema: always
+    job:
+      name: ${job.name:NONE}
